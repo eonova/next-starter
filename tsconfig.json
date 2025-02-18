@@ -1,19 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "alwaysStrict": true,
-    "checkJs": true,
-    "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "incremental": false,
+    "incremental": true,
     "isolatedModules": true,
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleDetection": "force",
     "moduleResolution": "Bundler",
@@ -34,20 +30,19 @@
     "strictPropertyInitialization": true,
     "target": "ESNext",
     "jsx": "preserve",
-    "plugins": [{ "name": "next" }],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "~/*": [".next/*"]
+    },
+    "plugins": [{ "name": "next" }],
+    "tsBuildInfoFile": ".tsbuildinfo"
   },
   "exclude": ["node_modules"],
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    "postcss.config.mjs",
-    "eslint.config.mjs",
-    "prettier.config.js"
+    "eslint.config.ts",
+    ".next/types/**/*.ts"
   ]
 }
