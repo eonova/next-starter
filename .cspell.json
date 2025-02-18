@@ -5,5 +5,5 @@
   "ignorePaths": ["pnpm-lock.yaml"],
   "useGitignore": true,
   "version": "0.2",
-  "words": ["bradlc", "dbaeumer", "tszhong0411"]
+  "words": ["bradlc", "dbaeumer"]
 }

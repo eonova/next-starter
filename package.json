@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "description": "TODO: Add a description",
   "license": "MIT",
-  "author": "tszhong0411 <me@honghong.me> (https://github.com/tszhong0411/)",
+  "author": "leostar <hi@leostar.top> (https://github.com/ileostar/)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tszhong0411/TODO: Add a name.git"
+    "url": "git+https://github.com/ileostar/TODO: Add a name.git"
   },
   "type": "module",
   "scripts": {
