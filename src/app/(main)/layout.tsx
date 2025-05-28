@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 
-import './globals.css'
+import '@/styles/globals.css'
 
 import { Geist } from 'next/font/google'
+import { Provider } from '../provider';
+import DevHelperDock from '@/components/shared/dev-helper-dock';
+import { isProduction } from '@/config/constants';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -20,8 +23,11 @@ type RootLayoutProps = Readonly<{
 
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
-    <html lang='en' className={geistSans.variable}>
-      <body>{children}</body>
+    <html lang='en' className={geistSans.variable} suppressHydrationWarning>
+      <body>
+        {!isProduction && <DevHelperDock />}
+        <Provider>{children}</Provider>
+      </body>
     </html>
   )
 }
