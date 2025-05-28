@@ -6,6 +6,7 @@ import { Geist } from 'next/font/google'
 import { Provider } from '../provider';
 import DevHelperDock from '@/components/shared/dev-helper-dock';
 import { isProduction } from '@/config/constants';
+import { cn } from '@/lib/utils';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -23,7 +24,11 @@ type RootLayoutProps = Readonly<{
 
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
-    <html lang='en' className={geistSans.variable} suppressHydrationWarning>
+    <html
+      lang="zh-CN"
+      className={cn(geistSans.variable, 'scroll-smooth')}
+      suppressHydrationWarning
+    >
       <body>
         {!isProduction && <DevHelperDock />}
         <Provider>{children}</Provider>

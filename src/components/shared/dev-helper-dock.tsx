@@ -27,7 +27,7 @@ const DEV_TOOLS = [
 
 const DevHelperDock: React.FC = () => {
   const [isPinned, setIsPinned] = React.useState(false);
-  const [autoHideEnabled, setAutoHideEnabled] = React.useState(true);
+  const [autoHideEnabled] = React.useState(true);
   const [isMouseOver, setIsMouseOver] = React.useState(false);
   const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null); // 用于管理悬停延迟
 

@@ -1,141 +1,112 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/toaster';
-import ThemeSwitcher from '@/components/shared/theme-switcher';
-import GithubLinks from '@/components/shared/github-links';
-import { signIn } from '@/lib/auth-client'; // Assuming signIn handles errors by throwing or returning a result
+import { signIn } from '@/lib/auth-client';
+import { useState } from 'react';
+import MainLayout from '@/components/layouts/main-layout';
+import { Loader2Icon } from 'lucide-react';
+import { SiGithub } from '@icons-pack/react-simple-icons'
 
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-});
+function GoogleIcon() {
+  return (
+    <svg
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 48 48"
+      className="mr-3 size-6"
+    >
+      <path
+        fill="#EA4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+      />
+      <path fill="none" d="M0 0h48v48H0z" />
+    </svg>
+  )
+}
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type Provider = 'github' | 'google'
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isPending, setIsPending] = useState(false)
+  const pathname = usePathname()
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
-    try {
-      // Trying signIn('credentials', data) pattern
-      const result = await signIn('credentials', data as any); // Added 'as any' to bypass immediate type check for data if necessary
-
-      // Check if signIn was successful. The actual success condition
-      // depends on how `better-auth`'s `signIn` is implemented.
-      // For example, it might return an error object if it fails.
-      if (result && (result as any).error) { // This is a guess, adjust based on actual signIn behavior
-        toast.error((result as any).error.message || 'Login failed. Please check your credentials.');
-      } else if (!result) { // Or if it returns null/undefined on failure
-        toast.error('Login failed. Please check your credentials.');
-      }
-      else {
-        toast.success('Logged in successfully!');
-        router.push('/'); // Redirect to homepage or dashboard
-      }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      toast.error(error.message || 'An unexpected error occurred during login.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleSignIn = async (provider: Provider) => {
+    localStorage.setItem('last-used-provider', provider)
+    await signIn.social({
+      provider,
+      callbackURL: pathname,
+      fetchOptions: {
+        onSuccess: () => {
+          setIsPending(false)
+        },
+        onError: () => {
+          setIsPending(false)
+          toast.error('登录失败')
+        },
+        onRequest: () => {
+          setIsPending(true)
+        },
+      },
+    })
+    router.push('/')
+  }
 
   return (
-    <div className="relative w-full mx-auto flex min-h-screen flex-col items-center justify-center overflow-hidden p-4 text-center font-mono">
-      {/* Blurred gradient background */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-tr from-purple-600 via-pink-500 to-blue-500 opacity-30 blur-3xl"
-      />
+    <MainLayout>
 
-      <div className="absolute flex gap-2 right-4 top-4">
-        <ThemeSwitcher />
-        <GithubLinks />
+      <div className="my-6 flex flex-col gap-4">
+        <Button
+          className="h-10 rounded-xl font-semibold"
+          onClick={() => handleSignIn('github')}
+          disabled={isPending}
+        >
+          {isPending
+            ? (
+              <Loader2Icon className="animate-spin" />
+            )
+            : (
+              <>
+                <SiGithub className="mr-3" />
+                使用 Github 登录
+              </>
+            )}
+        </Button>
+        <Button
+          className="h-10 rounded-xl border font-semibold"
+          variant="ghost"
+          onClick={() => handleSignIn('google')}
+          disabled={isPending}
+        >
+          {isPending
+            ? (
+              <Loader2Icon className="animate-spin" />
+            )
+            : (
+              <>
+                <GoogleIcon />
+                使用 Google 登录
+              </>
+            )}
+        </Button>
       </div>
-
-      <main className="flex flex-1 flex-col items-center justify-center w-full max-w-md px-4">
-        <div className="w-full space-y-6 rounded-lg bg-card/70 p-6 shadow-lg backdrop-blur-sm dark:bg-card/60 md:p-8">
-          <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-bold text-primary">Login</h1>
-            <p className="text-muted-foreground">
-              Enter your credentials to access your account.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                autoCapitalize="none"
-                autoComplete="email"
-                autoCorrect="off"
-                disabled={isLoading}
-                {...register('email')}
-              />
-              {errors.email && (
-                <p className="text-xs text-red-500">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                disabled={isLoading}
-                {...register('password')}
-              />
-              {errors.password && (
-                <p className="text-xs text-red-500">{errors.password.message}</p>
-              )}
-            </div>
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Logging in...' : 'Login'}
-            </Button>
-          </form>
-
-          <p className="mt-4 px-8 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
-            <Link
-              href="/auth/register"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Sign up
-            </Link>
-            .
-          </p>
-        </div>
-      </main>
-
-      <footer className="py-6 text-sm text-muted-foreground md:py-8">
-        <p>&copy; {new Date().getFullYear()} Eonova. All rights reserved.</p>
-      </footer>
-    </div>
+    </MainLayout>
   );
 };
 
